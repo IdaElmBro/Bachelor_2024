@@ -21,6 +21,8 @@ from sklearn import metrics
 from sklearn.svm import SVC
 from sklearn.model_selection import cross_val_score
 
+from IPython.display import display
+
 
 
 # Utility functions
@@ -368,12 +370,12 @@ def objective_xgb(trial, X, y, group, score, params=dict()):
 
     if group == '1':
         params['max_depth'] = trial.suggest_int('max_depth', 2, 10)
-        params['min_child_weight'] = trial.suggest_loguniform('min_child_weight',
-                                                              1e-10, 1e10)
+        params['min_child_weight'] = trial.suggest_float('min_child_weight',
+                                                              1e-10, 1e10, log=True)
     
     if group == '2':
         params['subsample'] = trial.suggest_float("subsample", 0.05, 1.0)
-        params['colsample_bytree'] = trial.suggest_uniform('colsample_bytree', 0, 1)
+        params['colsample_bytree'] = trial.suggest_float('colsample_bytree', 0, 1)
     
     if group == '3':
         params['learning_rate'] = trial.suggest_float("learning_rate", 1e-3, 0.1)
@@ -382,7 +384,7 @@ def objective_xgb(trial, X, y, group, score, params=dict()):
     pruning_callback = XGBoostPruningCallback(trial, "test-" + score.__name__)
     cv_scores = xgb.cv(params, dtrain, nfold=5,
                        stratified=True,
-                       feval=score,
+                       custom_metric=score,
                        early_stopping_rounds=10,
                        callbacks=[pruning_callback],
                        seed=0)

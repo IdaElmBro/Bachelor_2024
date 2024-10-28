@@ -362,11 +362,12 @@ def compare_models(y_test=None, clf_reports=[], labels=[], score='accuracy'):
 
 def objective_xgb(trial, X, y, group, score, params=dict()):
     dtrain = xgb.DMatrix(X, label=y)
-    class_weight = (y.shape[0] - np.sum(y)) / np.sum(y)
     
     ## Initial Learning Parameters
     params['learning_rate'] = 0.1
     #params['num_boost_round'] = 1000
+    #params['n_estimators']: 1000
+
 
     if group == '1':
         params['max_depth'] = trial.suggest_int('max_depth', 2, 10)

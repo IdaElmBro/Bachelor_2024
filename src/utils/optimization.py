@@ -175,7 +175,7 @@ def report(clf, x_train, y_train, x_test, y_test, display_scores=[],
     test_time = end - start
     
     test_acc = accuracy_score(y_test, test_predictions)
-    y_probs = clf.predict_proba(x_test)[:, 1]
+    y_probs = clf.predict_proba(x_test)[:, 1] # soft voting 
     
     roc_auc = roc_auc_score(y_test, y_probs)
         
@@ -437,7 +437,7 @@ def stepwise_optimization(X_train, y_train, trials=10):
     final_params = dict()
     for g in ['1', '2', '3']:
         print(f"=========================== Optimizing Group - {g} ============================")
-        update_params = execute_optimization('xgboost_new', g, score_function, X_train, y_train, trials,
+        update_params = execute_optimization('xgboost4', g, score_function, X_train, y_train, trials,
                                              params=final_params, direction='maximize')
         final_params.update(update_params)
         print(f"PARAMS after optimizing GROUP - {g}: ", final_params)
@@ -457,9 +457,9 @@ def objective_SVM(trial, X_train, y_train):
     # Suggest hyperparameters for the SVM
     C_try = trial.suggest_float('C', 1e-4, 1e4, log=True)  # Regularization parameter
     gamma_try = trial.suggest_categorical('gamma', ['scale', 'auto'])  # Kernel coefficient
-    kernel_try = trial.suggest_categorical("kernel", ["linear", "poly", "rbf"])  # instead of: ["linear", "poly", "rbf"], do only rbf, since we lnow it's the best. 
+    #kernel_try = trial.suggest_categorical("kernel", ["linear", "poly", "rbf"])  # instead of: ["linear", "poly", "rbf"], do only rbf, since we lnow it's the best. 
 
-    clf = SVC(C=C_try, gamma=gamma_try, kernel=kernel_try)
+    clf = SVC(C=C_try, gamma=gamma_try, kernel='rbf')
     score = cross_val_score(clf, X_train, y_train, n_jobs=-1, cv=3, scoring='accuracy').mean()
 
     return score

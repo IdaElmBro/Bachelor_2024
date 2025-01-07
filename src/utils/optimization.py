@@ -21,6 +21,8 @@ from sklearn import metrics
 from sklearn.svm import SVC
 from sklearn.model_selection import cross_val_score
 
+from IPython.display import display
+
 
 
 # Utility functions
@@ -173,7 +175,7 @@ def report(clf, x_train, y_train, x_test, y_test, display_scores=[],
     test_time = end - start
     
     test_acc = accuracy_score(y_test, test_predictions)
-    y_probs = clf.predict_proba(x_test)[:, 1]
+    y_probs = clf.predict_proba(x_test)[:, 1] # soft voting 
     
     roc_auc = roc_auc_score(y_test, y_probs)
         
@@ -360,20 +362,21 @@ def compare_models(y_test=None, clf_reports=[], labels=[], score='accuracy'):
 
 def objective_xgb(trial, X, y, group, score, params=dict()):
     dtrain = xgb.DMatrix(X, label=y)
-    class_weight = (y.shape[0] - np.sum(y)) / np.sum(y)
     
     ## Initial Learning Parameters
     params['learning_rate'] = 0.1
     #params['num_boost_round'] = 1000
+    #params['n_estimators']: 1000
+
 
     if group == '1':
         params['max_depth'] = trial.suggest_int('max_depth', 2, 10)
-        params['min_child_weight'] = trial.suggest_loguniform('min_child_weight',
-                                                              1e-10, 1e10)
+        params['min_child_weight'] = trial.suggest_float('min_child_weight',
+                                                              1e-10, 1e10, log=True)
     
     if group == '2':
         params['subsample'] = trial.suggest_float("subsample", 0.05, 1.0)
-        params['colsample_bytree'] = trial.suggest_uniform('colsample_bytree', 0, 1)
+        params['colsample_bytree'] = trial.suggest_float('colsample_bytree', 0, 1)
     
     if group == '3':
         params['learning_rate'] = trial.suggest_float("learning_rate", 1e-3, 0.1)
@@ -382,7 +385,7 @@ def objective_xgb(trial, X, y, group, score, params=dict()):
     pruning_callback = XGBoostPruningCallback(trial, "test-" + score.__name__)
     cv_scores = xgb.cv(params, dtrain, nfold=5,
                        stratified=True,
-                       feval=score,
+                       custom_metric=score,
                        early_stopping_rounds=10,
                        callbacks=[pruning_callback],
                        seed=0)
@@ -392,7 +395,7 @@ def objective_xgb(trial, X, y, group, score, params=dict()):
 
 
 def execute_optimization(study_name, group, score, X_train, y_train, trials, params=dict(), direction='maximize'):
-    logging.set_verbosity(logging.ERROR)
+  #  logging.set_verbosity(logging.ERROR)
     
     ## We use pruner to skip trials that are NOT fruitful
     pruner = MedianPruner(n_warmup_steps=5)
@@ -434,7 +437,7 @@ def stepwise_optimization(X_train, y_train, trials=10):
     final_params = dict()
     for g in ['1', '2', '3']:
         print(f"=========================== Optimizing Group - {g} ============================")
-        update_params = execute_optimization('xgboost', g, score_function, X_train, y_train, trials,
+        update_params = execute_optimization('xgboost4', g, score_function, X_train, y_train, trials,
                                              params=final_params, direction='maximize')
         final_params.update(update_params)
         print(f"PARAMS after optimizing GROUP - {g}: ", final_params)
@@ -464,16 +467,12 @@ def objective_SVM(trial, X_train, y_train):
 
 
 def execute_optimization_SVM(study_name, trials, X_train, y_train):
-    logging.set_verbosity(logging.ERROR)
-    
-    # We use pruner to skip trials that are NOT fruitful
-    pruner = MedianPruner(n_warmup_steps=5)
+   # logging.set_verbosity(logging.ERROR)
     
     study = create_study(direction='maximize',
                          study_name=study_name,
                          storage='sqlite:///optuna.db',
-                         load_if_exists=True,
-                         pruner=pruner)
+                         load_if_exists=True)
 
     study.optimize(lambda trial: objective_SVM(trial, X_train, y_train),
                    n_trials=trials,

@@ -55,7 +55,7 @@ def train_test_split_by_visit_same(df, random_state=None):
     This creates train/test split with the same participants, but different visits (timepoints).
     Returns a dictionary containing X_train, y_train, X_test, and y_test for each visit.
     """
-    columns_to_remove = ['Gender', 'Age', 'ExpressiveLangRaw', 'ExpressiveLangRaw1', 'Participant']
+    columns_to_remove = ['Gender', 'Age', 'ExpressiveLangRaw', 'ExpressiveLangRaw1', 'Participant', 'ADOS', 'ADOS1']
     #columns_to_remove = ['ExpressiveLangRaw', 'Participant', 'Age'] # try to include expressivelang, gender and age 
 
     df = df.drop(columns=columns_to_remove, errors='ignore')

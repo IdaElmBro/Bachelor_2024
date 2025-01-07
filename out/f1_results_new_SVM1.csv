@@ -1,0 +1,13 @@
+F1_CV_Train,F1_Test,CI_Train,Dataset,Visit,Type
+0.6503,0.6175,"(0.6457, 0.655)",Same_Participants_1,1,Same
+0.6538,0.616,"(0.6462, 0.6614)",Same_Participants_2,2,Same
+0.6505,0.6211,"(0.6417, 0.6594)",Same_Participants_3,3,Same
+0.6449,0.6642,"(0.6387, 0.6511)",Same_Participants_4,4,Same
+0.6433,0.6626,"(0.6361, 0.6505)",Same_Participants_5,5,Same
+0.6471,0.6355,"(0.6432, 0.6511)",Same_Participants_6,6,Same
+0.6505,0.59,"(0.6444, 0.6565)",New_Participants_1,1,New
+0.6521,0.5875,"(0.6465, 0.6577)",New_Participants_2,2,New
+0.654,0.6414,"(0.6448, 0.6632)",New_Participants_3,3,New
+0.6441,0.6593,"(0.639, 0.6492)",New_Participants_4,4,New
+0.6442,0.6758,"(0.6367, 0.6517)",New_Participants_5,5,New
+0.6471,0.6478,"(0.643, 0.6513)",New_Participants_6,6,New

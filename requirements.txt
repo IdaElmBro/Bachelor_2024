@@ -1,0 +1,8 @@
+pandas
+numpy
+scikit-learn
+matplotlib
+xgboost
+seaborn
+optuna
+optuna-integration[xgboost]
